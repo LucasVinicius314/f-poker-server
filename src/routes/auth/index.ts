@@ -26,8 +26,6 @@ authRouter.post('/login', async (req, res, next) => {
       },
     })
 
-    const h = user.get()
-
     if (user != null) {
       res.setHeader('x-access-token', sign(user.get()))
 

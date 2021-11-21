@@ -18,5 +18,13 @@
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/jsonwebtoken": "^8.5.6"
+  },
+  "engines": {
+    "node": "16.8"
+  },
+  "scripts": {
+    "start": "node build/index.js",
+    "build": "tsc",
+    "postinstall": "yarn run build"
   }
 }

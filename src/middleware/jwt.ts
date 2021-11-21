@@ -1,8 +1,11 @@
+import * as dotenv from 'dotenv'
 import * as jwt from 'jsonwebtoken'
 
 import { HttpException } from '../exceptions/httpexception'
 import { RequestHandler } from 'express'
 import { User } from '../typescript/user'
+
+dotenv.config()
 
 export const validationHandler: RequestHandler = (req, res, next) => {
   try {

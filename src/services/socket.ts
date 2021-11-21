@@ -1,9 +1,12 @@
+import * as dotenv from 'dotenv'
 import * as jwt from 'jsonwebtoken'
 
 import { Socket, Server as socketIo } from 'socket.io'
 
 import { Server } from 'http'
 import { User } from '../typescript/user'
+
+dotenv.config()
 
 type Clients = {
   [type: number]: Socket
