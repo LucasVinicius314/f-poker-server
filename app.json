@@ -1,0 +1,7 @@
+{
+  "name": "F Poker",
+  "description": "F Poker",
+  "addons": [
+    "heroku-postgresql"
+  ]
+}
