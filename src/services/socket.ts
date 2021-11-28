@@ -13,8 +13,12 @@ type Clients = {
 }
 
 export const useSocket = (server: Server) => {
-  const io = new socketIo(server, { transports: ['websocket'] })
   const clients: Clients = {}
+  const games: { name: string }[] = []
+  const io = new socketIo(server, {
+    transports: ['websocket'],
+    allowEIO3: true,
+  })
 
   io.engine.on('connection_error', (err) => {
     console.log(err.req)
@@ -37,8 +41,18 @@ export const useSocket = (server: Server) => {
 
         clients[decoded.id] = socket
 
-        socket.on('message', (params) => {
-          console.log('message event')
+        socket.on('get_games', (params) => {
+          socket.emit('get_games', games)
+        })
+
+        socket.on('create_game', (params) => {
+          games.push({ name: params.name ?? `${decoded.username}'s game` })
+
+          io.emit('get_games', games)
+        })
+
+        socket.on('join_game', (params) => {
+          // TODO: fix
         })
       } catch (error) {
         socket.emit('error', 'Unauthorized')
