@@ -49,7 +49,7 @@ export const useSocket = (server: Server) => {
           socket.emit('get_games', games)
         })
 
-        socket.on('create_game', (params: { name: string }) => {
+        socket.on('create_game', async (params: { name: string }) => {
           // assign an id to the game room
           // add it to the game rooms list
           // emit a an event to all clients with the updated game list
@@ -65,13 +65,13 @@ export const useSocket = (server: Server) => {
 
           io.emit('get_games', games)
 
-          socket.join(id)
+          await socket.join(id)
 
           // TODO: fix
           socket.data['joinedGameId'] = id
         })
 
-        socket.on('join_game', (params: { id: string }) => {
+        socket.on('join_game', async (params: { id: string }) => {
           // TODO: fix
           // find a game with the given id
           // if found, add the client to the players list
@@ -83,12 +83,33 @@ export const useSocket = (server: Server) => {
           if (game !== undefined) {
             game.players.push(decoded)
 
-            socket.join(game.id)
+            await socket.join(game.id)
 
             // TODO: fix
             socket.data['joinedGameId'] = game.id
 
-            io.of(game.id).emit('game_info', game)
+            io.to(game.id).emit('game_info', game)
+          }
+        })
+
+        socket.on('leave_game', async (params) => {
+          const joinedGameId = socket.data['joinedGameId'] as string
+
+          const game = games.find((v) => v.id === joinedGameId)
+
+          if (game !== undefined) {
+            const index = game.players.findIndex((v) => v.id === decoded.id)
+
+            if (index !== -1) {
+              game.players.splice(index)
+
+              await socket.leave(game.id)
+
+              // TODO: fix
+              delete socket.data['joinedGameId']
+
+              io.to(game.id).emit('game_info', game)
+            }
           }
         })
 
@@ -100,9 +121,7 @@ export const useSocket = (server: Server) => {
 
           const game = games.find((v) => v.id === joinedGameId)
 
-          if (game != undefined) {
-            socket.emit('game_info', game)
-          }
+          if (game != undefined) socket.emit('game_info', game)
         })
       } catch (error) {
         socket.emit('error', 'Unauthorized')
